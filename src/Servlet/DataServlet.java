@@ -1,6 +1,8 @@
 package Servlet;
 
 import Bean.Applience;
+import Bean.TwoSet;
+import Bean.User;
 import Service.ApplyService;
 import Service.impl.ApplyServiceImpl;
 import org.apache.commons.fileupload.FileItem;
@@ -28,6 +30,7 @@ public class DataServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("text/html;charset=UTF-8");
+        User user = (User) req.getSession().getAttribute("user");
         Applience applience = (Applience) req.getSession().getAttribute("applience");
         if (applience == null) {
             req.getRequestDispatcher("/submit.jsp").forward(req,resp);
@@ -53,9 +56,18 @@ public class DataServlet extends HttpServlet {
         try {
             List<FileItem> list = upload.parseRequest(req);
             System.out.println(list.size());
+            TwoSet twoSet = new TwoSet();
+            twoSet.setUser(user);
+            boolean first = true;
             for (FileItem fileItem : list) {
                 if (!fileItem.isFormField()&&fileItem.getName()!=null&&!fileItem.getName().equals("")) {
                     String fileName = fileItem.getName();
+                    if (first) {
+                        twoSet.setDataSetName(fileName);
+                        first = false;
+                    } else {
+                        twoSet.setTrainSetName(fileName);
+                    }
 //                    System.out.println(fileName);
                     String uuid = UUID.randomUUID().toString();
                     String suffix = fileName.substring(fileName.lastIndexOf("."));
